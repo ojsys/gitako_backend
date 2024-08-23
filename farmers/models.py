@@ -27,9 +27,9 @@ class Farmer(models.Model):
 
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=100)
-    age = models.IntegerField()
     phone_number = models.CharField(max_length=10)
     gender = models.CharField(max_length=15, choices=GENDER_CHOICES)
+    age = models.IntegerField()
     address = models.TextField()
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
