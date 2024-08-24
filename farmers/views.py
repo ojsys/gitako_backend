@@ -5,12 +5,31 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Farmer
 from .serializers import FarmerSerializer
+from .utils import send_welcome_email
+import logging
 
+logger = logging.getLogger(__name__)
 
 class RegisterFarmerView(generics.CreateAPIView):
     queryset = Farmer.objects.all()
     serializer_class = FarmerSerializer
 
+    def perform_create(self, serializer):
+        farmer = serializer.save()
+        # send welcome email
+        try:
+            send_welcome_email(farmer.email, farmer.full_name)
+            logger.info(f'Welcome email sent to {farmer.email}')
+        except Exception as e:
+            logger.error(f'Error sending welcome email to {farmer.email}: {e}')
+            return Response(
+                {"detail": "Registration successful, but the welcome email could not be sent."},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {"detail": "Registration successful. A welcome email has been sent."},
+            status=status.HTTP_201_CREATED
+        )
 
 class LoginView(APIView):
     def post(self, request):
